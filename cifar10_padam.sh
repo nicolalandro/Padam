@@ -6,6 +6,6 @@ MODEL='resnet'
 
 mkdir -p "logs/${MODEL}"
 
-python run_cnn_test_cifar10.py  --method="${OPTIMIZER}" --net="${LR}" \
+python3 run_cnn_test_cifar10.py  --method="${OPTIMIZER}" --net="${LR}" \
         --lr="${LR}" --partial="${LR}" --wd="${LR}" \
         > "logs/${MODEL}/${OPTIMIZER}_lr_${LR}_p_=${P}_wd_=${WD}_${RUN_NUMBER}.log"
