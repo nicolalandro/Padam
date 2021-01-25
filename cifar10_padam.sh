@@ -9,6 +9,6 @@ MODEL='resnet'
 
 mkdir -p "logs/${MODEL}"
 
-CUDA_VISIBLE_DEVICES="${GPU}" python3 run_cnn_test_cifar10.py  --method="${OPTIMIZER}" --net="${LR}" \
-        --lr="${LR}" --partial="${LR}" --wd="${LR}" \
+CUDA_VISIBLE_DEVICES="${GPU}" python3 run_cnn_test_cifar10.py  --method="${OPTIMIZER}" --net="${MODEL}" \
+        --lr="${LR}" --partial="${P}" --wd="${WD}" \
         > "logs/${MODEL}/${OPTIMIZER}_lr_${LR}_p_=${P}_wd_=${WD}_${RUN_NUMBER}.log"
