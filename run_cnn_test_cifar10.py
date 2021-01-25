@@ -1,42 +1,34 @@
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torch.backends.cudnn as cudnn
+import argparse
+import os
 
+import torch
+import torch.backends.cudnn as cudnn
+import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
-import torchvision.models as models
-
-import os
-import argparse
-
-from models import *
-from utils import progress_bar
-from torch.autograd import Variable
- 
+from torch import optim
 from torch.optim.lr_scheduler import MultiStepLR
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.optim.lr_scheduler import CosineAnnealingLR
 
+# fix for python 3.6
+try:
+    import src
+except:
+    import sys
 
-import json
-from copy import deepcopy
+    sys.path.insert(0, './')
 
- 
-    
+from utils import progress_bar
+
 parser = argparse.ArgumentParser(description='PyTorch CIFAR100 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 parser.add_argument('--method', '-m', help='optimization method')
 parser.add_argument('--net', '-n', help='network archtecture')
-parser.add_argument('--partial', default=1/8, type=float, help='partially adaptive parameter p in Padam')
+parser.add_argument('--partial', default=1 / 8, type=float, help='partially adaptive parameter p in Padam')
 parser.add_argument('--wd', default=5e-4, type=float, help='weight decay')
 parser.add_argument('--Nepoch', default=200, type=int, help='number of epoch')
 parser.add_argument('--beta1', default=0.9, type=float, help='beta1')
 parser.add_argument('--beta2', default=0.999, type=float, help='beta2')
-
 
 args = parser.parse_args()
 
@@ -70,12 +62,11 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False,
 
 classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
- 
 if args.resume:
     # Load checkpoint.
     print('==> Resuming from checkpoint..')
     assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
-    checkpoint = torch.load('./checkpoint/cnn_cifar10_'+args.method)
+    checkpoint = torch.load('./checkpoint/cnn_cifar10_' + args.method)
     model = checkpoint['model']
     start_epoch = checkpoint['epoch']
     train_losses = checkpoint['train_losses']
@@ -85,43 +76,58 @@ if args.resume:
 else:
     print('==> Building model..')
 
-
 if args.net == 'vggnet':
     from models import vgg
-    model = vgg.VGG('VGG16', num_classes = 10)
+
+    model = vgg.VGG('VGG16', num_classes=10)
 #     model = models.vgg16_bn(num_classes=10)
 elif args.net == 'resnet':
     from models import resnet
-    model = resnet.ResNet18(num_classes = 10)
+
+    model = resnet.ResNet18(num_classes=10)
 #     model = models.resnet18(num_classes=10)
 elif args.net == 'wideresnet':
     from models import wideresnet
-    model = wideresnet.WResNet_cifar10(num_classes = 10, depth=16, multiplier=4)
+
+    model = wideresnet.WResNet_cifar10(num_classes=10, depth=16, multiplier=4)
 else:
-    print ('Network undefined!')
-
-
+    print('Network undefined!')
 
 if use_cuda:
     model.cuda()
     model = torch.nn.DataParallel(model, device_ids=range(torch.cuda.device_count()))
     cudnn.benchmark = True
- 
-    
+
 criterion = nn.CrossEntropyLoss()
 
 betas = (args.beta1, args.beta2)
-import Padam
-optimizer = Padam.Padam(model.parameters(), lr=args.lr, partial = args.partial, weight_decay = args.wd, betas = betas)
- 
+if args.method == 'sgdm':
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=args.wd)
+elif args.method == 'adam':
+    import Adam
 
-scheduler = MultiStepLR(optimizer, milestones=[100,150], gamma=0.1)
+    optimizer = Adam.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=betas)
+elif args.method == 'adamw':
+    import AdamW
 
+    optimizer = AdamW.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd, betas=betas)
+elif args.method == 'amsgrad':
+    import Adam
 
-for epoch in range(start_epoch+1, args.Nepoch+1):
-    
-    scheduler.step() 
-    print ('\nEpoch: %d' % epoch, ' Learning rate:', scheduler.get_lr())
+    optimizer = Adam.Adam(model.parameters(), lr=args.lr, amsgrad=True, weight_decay=args.wd, betas=betas)
+elif args.method == 'padam':
+    import Padam
+
+    optimizer = Padam.Padam(model.parameters(), lr=args.lr, partial=args.partial, weight_decay=args.wd, betas=betas)
+else:
+    print('Optimizer undefined!')
+
+scheduler = MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
+
+for epoch in range(start_epoch + 1, args.Nepoch + 1):
+
+    scheduler.step()
+    print('\nEpoch: %d' % epoch, ' Learning rate:', scheduler.get_lr())
     model.train()  # Training
 
     train_loss = 0
@@ -131,10 +137,12 @@ for epoch in range(start_epoch+1, args.Nepoch+1):
         if use_cuda:
             inputs, targets = inputs.cuda(), targets.cuda()
 
+
         def closure():
             outputs = model(inputs)
             loss = criterion(outputs, targets)
             return loss
+
 
         optimizer.zero_grad()
         outputs = model(inputs)
@@ -148,8 +156,8 @@ for epoch in range(start_epoch+1, args.Nepoch+1):
         correct += predicted.eq(targets.data).cpu().sum().item()
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-            % (train_loss/(batch_idx+1), 100.0/total*(correct), correct, total))
- 
+                     % (train_loss / (batch_idx + 1), 100.0 / total * (correct), correct, total))
+
     # Compute training error 
     train_loss = 0
     correct = 0
@@ -166,12 +174,12 @@ for epoch in range(start_epoch+1, args.Nepoch+1):
         correct += predicted.eq(targets.data).cpu().sum().item()
 
         progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-            % (train_loss/(batch_idx+1), 100.0/total*(correct), correct, total))
-    train_errs.append(1 - correct/total)
-    train_losses.append(train_loss/(batch_idx+1))
+                     % (train_loss / (batch_idx + 1), 100.0 / total * (correct), correct, total))
+    train_errs.append(1 - correct / total)
+    train_losses.append(train_loss / (batch_idx + 1))
 
-    model.eval() # Testing
- 
+    model.eval()  # Testing
+
     test_loss = 0
     correct = 0
     total = 0
@@ -187,26 +195,23 @@ for epoch in range(start_epoch+1, args.Nepoch+1):
         correct += predicted.eq(targets.data).cpu().sum().item()
 
         progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-            % (test_loss/(batch_idx+1), 100.0/ total *(correct), correct, total))
-    test_errs.append(1 - correct/total)
-    test_losses.append(test_loss/(batch_idx+1))
+                     % (test_loss / (batch_idx + 1), 100.0 / total * (correct), correct, total))
+    test_errs.append(1 - correct / total)
+    test_losses.append(test_loss / (batch_idx + 1))
 
     # Save checkpoint
-    acc = 100.0/total*(correct)
+    acc = 100.0 / total * (correct)
     if acc > best_acc:
         print('Saving..')
         if not os.path.isdir('checkpoint'):
             os.mkdir('checkpoint')
         state = {
-                'model': model,
-                'epoch': epoch,
-                'train_errs':train_errs,
-                'test_errs':test_errs,
-                'train_losses':train_losses,
-                'test_losses':test_losses
-                }
+            'model': model,
+            'epoch': epoch,
+            'train_errs': train_errs,
+            'test_errs': test_errs,
+            'train_losses': train_losses,
+            'test_losses': test_losses
+        }
         torch.save(state, './checkpoint/cnn_cifar10_' + args.method)
         best_acc = acc
-        
- 
-     
