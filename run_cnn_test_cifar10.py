@@ -119,6 +119,14 @@ elif args.method == 'padam':
     import Padam
 
     optimizer = Padam.Padam(model.parameters(), lr=args.lr, partial=args.partial, weight_decay=args.wd, betas=betas)
+elif args.method == 'mas':
+    from MAS.mas_scheduler import MASScheduler
+    from MAS.adam_sgd_mix import AdamSGDWeighted
+
+    optimizer = AdamSGDWeighted(model.parameters(), lr=args.lr,
+                                adam_w=1, sgd_w=0,
+                                weight_decay=args.wd, betas=betas)
+    mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
 else:
     print('Optimizer undefined!')
 
@@ -177,6 +185,10 @@ for epoch in range(start_epoch + 1, args.Nepoch + 1):
                      % (train_loss / (batch_idx + 1), 100.0 / total * (correct), correct, total))
     train_errs.append(1 - correct / total)
     train_losses.append(train_loss / (batch_idx + 1))
+
+    # do mas scheduler step
+    if args.method == 'mas':
+        mas_scheduler.step()
 
     model.eval()  # Testing
 
