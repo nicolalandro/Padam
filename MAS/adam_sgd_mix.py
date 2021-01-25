@@ -1,13 +1,7 @@
 import math
-import os
 
 import torch
-import torchvision
-from PIL import Image
 from torch.optim import Optimizer
-from torchvision import transforms
-
-from src.models.lenet5 import LeNet
 
 
 class AdamSGDWeighted(Optimizer):
@@ -134,42 +128,3 @@ class AdamSGDWeighted(Optimizer):
                 d_p = buf
 
         return d_p
-
-
-if __name__ == '__main__':
-    lr = 0.001
-    epochs = 2
-    batch_size = 20
-    img_shape = (32, 32)
-    path = '/media/mint/Barracuda/Datasets/cifar10/'
-    transform_train = transforms.Compose([
-        transforms.Resize(img_shape, Image.BILINEAR),
-        transforms.ToTensor(),
-    ])
-
-    train_path = os.path.join(path, 'train')
-    trainset = torchvision.datasets.ImageFolder(root=train_path, transform=transform_train)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
-
-    model = LeNet(10)
-
-    criterion_xent = torch.nn.CrossEntropyLoss()
-    params = list(model.parameters())
-    optimizer = AdamSGDWeighted(params, lr)
-
-    for epoch in range(epochs):
-        print("==> Start Epoch {}/{}".format(epoch + 1, epochs))
-        model.train()
-        for batch_idx, (data, labels) in enumerate(trainloader):
-            predictions = model(data)
-            loss = criterion_xent(predictions, labels)
-
-            optimizer.zero_grad()
-            loss.backward()
-
-            optimizer.step()
-
-            print(f"Batch {batch_idx + 1}\t CrossEntropy {loss.item()})")
-            if batch_idx + 1 == 3:
-                break
-        print("==> End Epoch {}/{}".format(epoch + 1, epochs))
