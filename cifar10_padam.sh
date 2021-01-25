@@ -1,3 +1,6 @@
+RUN_NUMBER=1
+GPU=0
+
 LR=0.1
 OPTIMIZER='padam'
 P=0.125
@@ -6,6 +9,6 @@ MODEL='resnet'
 
 mkdir -p "logs/${MODEL}"
 
-python3 run_cnn_test_cifar10.py  --method="${OPTIMIZER}" --net="${LR}" \
+CUDA_VISIBLE_DEVICES="${GPU}" python3 run_cnn_test_cifar10.py  --method="${OPTIMIZER}" --net="${LR}" \
         --lr="${LR}" --partial="${LR}" --wd="${LR}" \
         > "logs/${MODEL}/${OPTIMIZER}_lr_${LR}_p_=${P}_wd_=${WD}_${RUN_NUMBER}.log"
