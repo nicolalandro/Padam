@@ -26,6 +26,7 @@ parser.add_argument('--method', '-m', help='optimization method')
 parser.add_argument('--net', '-n', help='network archtecture')
 parser.add_argument('--partial', default=1 / 8, type=float, help='partially adaptive parameter p in Padam')
 parser.add_argument('--wd', default=5e-4, type=float, help='weight decay')
+parser.add_argument('--momentum', default=0.95, type=float, help='momentum')
 parser.add_argument('--Nepoch', default=200, type=int, help='number of epoch')
 parser.add_argument('--beta1', default=0.9, type=float, help='beta1')
 parser.add_argument('--beta2', default=0.999, type=float, help='beta2')
@@ -124,7 +125,7 @@ elif args.method == 'mas':
     from MAS.adam_sgd_mix import AdamSGDWeighted
 
     optimizer = AdamSGDWeighted(model.parameters(), lr=args.lr,
-                                adam_w=1, sgd_w=0,
+                                adam_w=1, sgd_w=0, momentum=args.momentum,
                                 weight_decay=args.wd, betas=betas)
     mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
 else:
