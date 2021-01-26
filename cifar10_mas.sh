@@ -1,7 +1,7 @@
 RUN_NUMBER=1
 GPU=0
 
-LR=0.01
+LR=0.001
 OPTIMIZER='mas'
 P=0.125
 WD='5e-4'
