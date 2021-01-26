@@ -4,7 +4,7 @@ GPU=1
 LR=0.001
 OPTIMIZER='mas'
 P=0.125
-WD='2.5e-4'
+WD='2.5e-2'
 MODEL='resnet'
 MOMENTUM=0.95
 
