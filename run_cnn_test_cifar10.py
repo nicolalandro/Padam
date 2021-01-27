@@ -136,6 +136,14 @@ elif args.method == 'mps':
                                  adam_w=1, sgd_w=0, partial=args.partial,
                                  weight_decay=args.wd, betas=betas)
     mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
+elif args.method == 'map':
+    from MAS.mas_scheduler import MASScheduler
+    from MAS.adam_padam_mix import AdamPadamWeighted
+
+    optimizer = AdamPadamWeighted(model.parameters(), lr=args.lr,
+                                 adam_w=1, sgd_w=0, partial=args.partial,
+                                 weight_decay=args.wd, betas=betas)
+    mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
 else:
     print('Optimizer undefined!')
 
@@ -196,7 +204,7 @@ for epoch in range(start_epoch + 1, args.Nepoch + 1):
     train_losses.append(train_loss / (batch_idx + 1))
 
     # do mas scheduler step
-    if args.method in ['mas', 'mps']:
+    if args.method in ['mas', 'mps', 'map']:
         mas_scheduler.step()
 
     model.eval()  # Testing
