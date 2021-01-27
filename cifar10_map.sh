@@ -1,7 +1,7 @@
 RUN_NUMBER=1
 GPU=1
 
-LR=0.01
+LR=0.001
 OPTIMIZER='map'
 P=0.125
 WD='2.5e-2'
