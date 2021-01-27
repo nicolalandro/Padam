@@ -1,10 +1,10 @@
 RUN_NUMBER=1
-GPU=1
+GPU=0
 
 LR=0.001
 OPTIMIZER='map'
 P=0.125
-WD='2.5e-2'
+WD='5e-4'
 MODEL='resnet'
 MOMENTUM=0
 
