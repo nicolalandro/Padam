@@ -6,7 +6,7 @@ OPTIMIZER='mas'
 P=0.125
 WD='2.5e-2'
 MODEL='resnet'
-MOMENTUM=0.95
+MOMENTUM=0.9
 
 mkdir -p "logs/${MODEL}"
 
