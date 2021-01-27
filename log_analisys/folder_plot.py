@@ -1,6 +1,6 @@
 import os
 import matplotlib.pyplot as plt
-
+import numpy as np
 from log_analisys.folder_mean_accuracy import get_accuracies
 
 model = 'resnet'
@@ -24,6 +24,7 @@ def main():
     axleg.axis('off')
     ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
               ncol=2, mode="expand", borderaxespad=0.)
+    ax.set_yticks(np.arange(0, 96, step=5.0))
     plt.margins(0, 0)
     # plt.show()
     plt.savefig(output_path)
