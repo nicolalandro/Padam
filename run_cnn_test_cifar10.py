@@ -133,7 +133,7 @@ elif args.method == 'mps':
     from MAS.padam_sgd_mix import PadamSGDWeighted
 
     optimizer = PadamSGDWeighted(model.parameters(), lr=args.lr,
-                                 adam_w=1, sgd_w=0, partial=args.partial,
+                                 adam_w=1, sgd_w=0, momentum=args.momentum, partial=args.partial,
                                  weight_decay=args.wd, betas=betas)
     mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
 elif args.method == 'map':
@@ -141,7 +141,7 @@ elif args.method == 'map':
     from MAS.adam_padam_mix import AdamPadamWeighted
 
     optimizer = AdamPadamWeighted(model.parameters(), lr=args.lr,
-                                 adam_w=1, sgd_w=0, partial=args.partial,
+                                 adam_w=1, sgd_w=0, momentum=args.momentum, partial=args.partial,
                                  weight_decay=args.wd, betas=betas)
     mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
 else:

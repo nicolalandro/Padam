@@ -13,6 +13,7 @@ def main():
     f, (ax, axleg) = plt.subplots(2, figsize=(10, 10))
 
     files = os.listdir(folder_path)
+    files = list(filter(lambda x: not x.startswith('mas_'), files))
     files.sort()
     for f in files:
         log_path = os.path.join(folder_path, f)
