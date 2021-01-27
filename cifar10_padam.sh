@@ -1,5 +1,5 @@
 RUN_NUMBER=1
-GPU=0
+GPU=1
 
 LR=0.01
 OPTIMIZER='padam'
