@@ -22,7 +22,7 @@ from utils import progress_bar
 parser = argparse.ArgumentParser(description='PyTorch CIFAR100 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
-parser.add_argument('--method', '-m', default='sgdm', help='optimization method')
+parser.add_argument('--method', '-m', default='mps', help='optimization method')
 parser.add_argument('--net', '-n', default='resnet', help='network archtecture')
 parser.add_argument('--partial', default=1 / 8, type=float, help='partially adaptive parameter p in Padam')
 parser.add_argument('--wd', default=5e-4, type=float, help='weight decay')
@@ -133,8 +133,8 @@ elif args.method == 'mps':
     from MAS.padam_sgd_mix import PadamSGDWeighted
 
     optimizer = PadamSGDWeighted(model.parameters(), lr=args.lr,
-                                 adam_w=1, sgd_w=0, momentum=args.momentum, partial=args.partial,
-                                 weight_decay=args.wd, betas=betas)
+                                 adam_w=1, sgd_w=0, partial=args.partial,
+                                 betas=betas)
     mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
 elif args.method == 'map':
     from MAS.mas_scheduler import MASScheduler
@@ -143,7 +143,7 @@ elif args.method == 'map':
     optimizer = AdamPadamWeighted(model.parameters(), lr=args.lr,
                                  adam_w=1, sgd_w=0, momentum=args.momentum, partial=args.partial,
                                  weight_decay=args.wd, betas=betas)
-    mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
+    mas_scheduler = MASScheduler(optimizer, 1, 0, 125)
 else:
     print('Optimizer undefined!')
 
