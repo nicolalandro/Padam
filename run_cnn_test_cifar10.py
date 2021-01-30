@@ -26,7 +26,7 @@ parser.add_argument('--method', '-m', default='mps', help='optimization method')
 parser.add_argument('--net', '-n', default='resnet', help='network archtecture')
 parser.add_argument('--partial', default=1 / 8, type=float, help='partially adaptive parameter p in Padam')
 parser.add_argument('--wd', default=5e-4, type=float, help='weight decay')
-parser.add_argument('--momentum', default=0.95, type=float, help='momentum')
+parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--Nepoch', default=200, type=int, help='number of epoch')
 parser.add_argument('--beta1', default=0.9, type=float, help='beta1')
 parser.add_argument('--beta2', default=0.999, type=float, help='beta2')
@@ -121,31 +121,31 @@ elif args.method == 'padam':
 
     optimizer = Padam.Padam(model.parameters(), lr=args.lr, partial=args.partial, weight_decay=args.wd, betas=betas)
 elif args.method == 'mas':
-    from MAS.mas_scheduler import MASScheduler
     from MAS.adam_sgd_mix import AdamSGDWeighted
 
     optimizer = AdamSGDWeighted(model.parameters(), lr=args.lr,
                                 adam_w=1, sgd_w=0, momentum=args.momentum,
                                 weight_decay=args.wd, betas=betas)
-    mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
 elif args.method == 'mps':
-    from MAS.mas_scheduler import MASScheduler
     from MAS.padam_sgd_mix import PadamSGDWeighted
 
     optimizer = PadamSGDWeighted(model.parameters(), lr=args.lr,
-                                 adam_w=1, sgd_w=0, partial=args.partial,
+                                 adam_w=1, sgd_w=0, partial=args.partial, momentum=0.9, weight_decay=args.wd,
                                  betas=betas)
-    mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
+
 elif args.method == 'map':
-    from MAS.mas_scheduler import MASScheduler
     from MAS.adam_padam_mix import AdamPadamWeighted
 
     optimizer = AdamPadamWeighted(model.parameters(), lr=args.lr,
                                  adam_w=1, sgd_w=0, momentum=args.momentum, partial=args.partial,
                                  weight_decay=args.wd, betas=betas)
-    mas_scheduler = MASScheduler(optimizer, 1, 0, 125)
 else:
     print('Optimizer undefined!')
+
+if args.method in ['mas', 'mps', 'map']:
+    from MAS.mas_scheduler import MASScheduler
+    # mas_scheduler = MASScheduler(optimizer, 1, 0, args.Nepoch)
+    mas_scheduler = MASScheduler(optimizer, 1, 0, 100)
 
 scheduler = MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
 
