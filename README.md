@@ -1,5 +1,5 @@
 # Padam vs MAS
-This code is a fork of [Padam](https://github.com/uclaml/Padam) offical code to obtain a perfect comparison between [MAS](https://gitlab.com/nicolalandro/multi_optimizer) and Padam.
+This code is a fork of [Padam](https://github.com/uclaml/Padam) offical code to obtain a perfect comparison between [MAS](https://gitlab.com/nicolalandro/multi_optimizer) idea and Padam.
 
 ## Prerequisites: 
 ```
@@ -11,7 +11,7 @@ Use python to run run_cnn_test_cifar10.py for experiments on [Cifar10](https://w
 
 ## Command Line Arguments:
 * --lr: (start) learning rate 
-* --method: optimization method, e.g., "sgdm", "adam", "amsgrad", "padam"
+* --method: optimization method, e.g., "sgdm", "adam", "amsgrad", "padam", "mps", "mas", "map"
 * --net: network architecture, e.g. ["vggnet"](https://arxiv.org/abs/1409.1556), ["resnet"](https://arxiv.org/abs/1512.03385), ["wideresnet"](https://arxiv.org/abs/1605.07146)
 * --partial: partially adaptive parameter for Padam method
 * --wd: weight decay
@@ -21,20 +21,31 @@ Use python to run run_cnn_test_cifar10.py for experiments on [Cifar10](https://w
 ## Usage Examples:
 * Run experiments on Cifar10:
 ```bash
-  -  python run_cnn_test_cifar10.py  --lr 0.1 --method "padam" --net "vggnet"  --partial 0.125 --wd 5e-4
+python run_cnn_test_cifar10.py  --lr 0.01 --method "mps" --net "resnet"  --partial 0.125 --wd 2.5e-2 > logs/resnet/file.log
 ```
-* Run experiments on Cifar100:
-```bash
-  -  python run_cnn_test_cifar100.py  --lr 0.1 --method "padam" --net "resnet"  --partial 0.125 --wd 5e-4
+* Obtain max and mean of logs
 ```
+python folder_mean_accuracy.py
+```
+
+## Results
+
+SGD-Momentum | ADAM | Amsgrad | AdamW | Yogi | AdaBound | Padam | Dynamic ATMO
+:----- | :----: | :----: | :----: | :----: | :----: | :----: | -----:
+ 95.00 | 92.89 | 93.53 | 94.56 | 93.92 | 94.16 | 94.94 | **95.27**
+
 ## Citation
 Please check our paper for technical details and full results. 
 
+This is a temporary link with oldest version but if you need to cite, cite it.
+
 ```
-@inproceedings{chen2020closing,
-  title={Closing the Generalization Gap of Adaptive Gradient Methods in Training Deep Neural Networks},
-  author={Chen, Jinghui and Zhou, Dongruo and Tang, Yiqi and Yang, Ziyan and Cao, Yuan and Gu, Quanquan},
-  booktitle={International Joint Conferences on Artificial Intelligence},
-  year={2020}
+@article{landro2020mixing,
+    title={Mixing ADAM and SGD: a Combined Optimization Method},
+    author={Nicola Landro and Ignazio Gallo and Riccardo La Grassa},
+    year={2020},
+    journal={arXiv preprint},
+    archivePrefix={arXiv},
 }
+
 ```
