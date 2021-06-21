@@ -1,5 +1,5 @@
-# Padam vs MAS
-This code is a fork of [Padam](https://github.com/uclaml/Padam) offical code to obtain a perfect comparison between [MAS](https://gitlab.com/nicolalandro/multi_optimizer) idea and Padam.
+# Padam vs ATMO
+This code is a fork of [Padam](https://github.com/uclaml/Padam) offical code to obtain a perfect comparison between [ATMO](https://gitlab.com/nicolalandro/multi_optimizer) idea and Padam.
 
 ## Prerequisites: 
 ```
@@ -35,17 +35,13 @@ SGD-Momentum | ADAM | Amsgrad | AdamW | Yogi | AdaBound | Padam | Dynamic ATMO
  95.00 | 92.89 | 93.53 | 94.56 | 93.92 | 94.16 | 94.94 | **95.27**
 
 ## Citation
-Please check our paper for technical details and full results. 
-
-This is a temporary link with oldest version but if you need to cite, cite it.
+Please check [our paper](https://www.mdpi.com/1999-4893/14/6/186) for technical details and full results. 
 
 ```
-@article{landro2020mixing,
-    title={Mixing ADAM and SGD: a Combined Optimization Method},
-    author={Nicola Landro and Ignazio Gallo and Riccardo La Grassa},
-    year={2020},
-    journal={arXiv preprint},
-    archivePrefix={arXiv},
+@article{
+  title={Combining Optimization Methods Using an Adaptive Meta Optimizer},
+  author={Nicola Landro and Ignazio Gallo and Riccardo La Grassa},
+  year={2021},
+  journal={Algorithms MDPI},
 }
-
 ```
